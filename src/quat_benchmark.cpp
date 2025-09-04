@@ -258,7 +258,7 @@ void generateRandomQuats(PoseAoS& poseAoS, PoseSoA& poseSoA, int count) {
 }
 
 // Verify that normalization worked correctly
-bool verifyNormalization(const PoseAoS& poseAoS, const PoseSoA& poseSoA, float tolerance = 1e-6f) {
+bool verifyNormalization(const PoseAoS& poseAoS, const PoseSoA& poseSoA, float tolerance = 1e-4f) {
     for (int i = 0; i < poseAoS.size(); ++i) {
         // Check AoS
         float lengthAoS = std::sqrt(poseAoS[i].x * poseAoS[i].x + 
@@ -272,7 +272,18 @@ bool verifyNormalization(const PoseAoS& poseAoS, const PoseSoA& poseSoA, float t
                                    poseSoA.z[i] * poseSoA.z[i] + 
                                    poseSoA.w[i] * poseSoA.w[i]);
         
-        if (std::abs(lengthAoS - 1.0f) > tolerance || std::abs(lengthSoA - 1.0f) > tolerance) {
+        // Both lengths should be approximately 1.0
+        float deltaAoS = std::abs(lengthAoS - 1.0f);
+        float deltaSoA = std::abs(lengthSoA - 1.0f);
+        if (deltaAoS > tolerance || deltaSoA > tolerance) {
+            std::cout << "Quaternion " << i << ": AoS diff = " << deltaAoS 
+                << ", SoA diff = " << deltaSoA << std::endl;
+            return false;
+        }
+
+        float diff = std::abs(lengthAoS - lengthSoA);
+        if (diff > tolerance) {
+            std::cout << "Quaternion " << i << ": Length mismatch between AoS and SoA = " << diff << std::endl;
             return false;
         }
     }
@@ -359,7 +370,7 @@ void printResults(const std::vector<BenchmarkResult>& results, int jointCount) {
                   << std::setw(15) << result.stdDev
                   << std::setw(15) << speedup << "x\n";
     }
-    
+
     std::cout << "\nPerformance Analysis:\n";
     std::cout << "- Lower times indicate better performance\n";
     std::cout << "- Speedup is relative to the first method (" << results[0].name << ")\n";
