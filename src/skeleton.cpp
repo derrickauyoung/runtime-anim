@@ -4,6 +4,8 @@
 #include <cmath>
 #include <algorithm>
 
+// To compile: g++ -std=c++20 -o ../bin/transform_test skeleton.cpp
+
 // Core data structures for skeletal animation
 struct Quat {
     float x,y,z,w;
@@ -81,10 +83,12 @@ Vec3 rotateVector(const Quat& q, const Vec3& v) {
     Vec3 qvec = {q.x, q.y, q.z};
     float qw = q.w;
     
-    // This formula comes from expanding q * v * q^(-1) algebraically
+    // Prepare cross products
     Vec3 cross1 = crossProduct(qvec, v);
     Vec3 cross2 = crossProduct(qvec, cross1);
     
+    // For Rodrigues' rotation formula:
+    // v' = v + 2 * (qw * cross1 + cross2)
     return Vec3{
         v.x + 2.0f * (qw * cross1.x + cross2.x),
         v.y + 2.0f * (qw * cross1.y + cross2.y),
