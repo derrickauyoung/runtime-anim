@@ -1,17 +1,15 @@
 cmake_minimum_required(VERSION 3.16)
-project(MyProject LANGUAGES CXX)
+project(RuntimeAnimModule4 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Library / code under test
-add_library(mycode src/anim_keys_samples_clips.cpp)
-target_include_directories(mycode PUBLIC src)
+# --- Module4 library ---
+add_library(blend
+    src/blend/blend.cpp
+)
+target_include_directories(blend PUBLIC src)
 
-# Enable CTest so `ctest` works
-include(CTest)
-enable_testing()
-
-# Add tests subdir
-add_subdirectory(tests)
+# --- Executable for demo ---
+add_executable(blend_demo src/blend/main.cpp)
+target_link_libraries(blend_demo PRIVATE blend)
